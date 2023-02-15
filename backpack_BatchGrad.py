@@ -1,5 +1,4 @@
-#passiert lokal nicht im .py File 
-#pip install backpack-for-pytorch
+
 
 try:
     from collections.abc import Mapping
@@ -63,9 +62,11 @@ epochs = 5
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 loss_fn = nn.CrossEntropyLoss
-#Extendos noetig um den Rucksack aufsetzen zu koennen
+#Extends noetig um den Rucksack aufsetzen zu koennen
 extend(model)
 #extend(loss_fn)
+
+# mit extend loss_fn TypeError: children() missing 1 required positional argument: 'self' - aber in der Extension __init__ von Backpack
 
 from backpack import backpack, extend
 from backpack.extensions import BatchGrad
@@ -103,7 +104,7 @@ def train_loop(dataloader, model, loss_fn, optimizer):
             ### Diese sollen in eine Liste gepackt werden, die Summe gebildet und durch die Laenge der Liste geteilt werden
             ### Dieses mean sollte dem Wert in p.grad entsprechen - von pytorch und dem eigenen Optimizer berechnet
             
-            ### Problem: Kein Zugriff auf den Parameter grad_batch
+            ### Problem: Irgendwas stimmt bei der Berechnung der mean_gradient_batch noch nicht. Tensor a (784) und Tensor b (512) matchen noch nicht
             
             
             #list = list.append(grad_batch[i] bis grad_batch)
