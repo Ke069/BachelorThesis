@@ -1,4 +1,13 @@
-pip install backpack-for-pytorch
+#passiert lokal nicht im .py File 
+#pip install backpack-for-pytorch
+
+try:
+    from collections.abc import Mapping
+except ImportError:
+    from collections import Mapping
+
+#Gegen ASCII Fehler 
+#coding = utf-8
 
 import torch
 from torch import nn
@@ -53,9 +62,10 @@ epochs = 5
 
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-#Extendos nötig um den Rucksack aufsetzen zu können
+loss_fn = nn.CrossEntropyLoss
+#Extendos noetig um den Rucksack aufsetzen zu koennen
 extend(model)
-extend(loss_fn)
+#extend(loss_fn)
 
 from backpack import backpack, extend
 from backpack.extensions import BatchGrad
@@ -77,38 +87,42 @@ def train_loop(dataloader, model, loss_fn, optimizer):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            print(grad_batch)
+            #print(grad_batch)
         
         
-        #list = []
+        list = []
         for name,param, in model.named_parameters():
-            print(name)
-            print(" .grad.shape:     ", param.grad.shape)
-            print(" .grad_batch.shape:   ", param.grad_batch.shape)
+            #print(name)
+            #print(" .grad.shape:     ", param.grad.shape)
+            #print(" .grad_batch.shape:   ", param.grad_batch.shape)
             #print(#################)
             #print(param.grad_batch)
+
             
             ### Im grad_batch sind wohl die einzelenen Gradienten hinterlegt
-            ### Diese sollen in eine Liste gepackt werden, die Summe gebildet und durch die Länge der Liste geteilt werden
+            ### Diese sollen in eine Liste gepackt werden, die Summe gebildet und durch die Laenge der Liste geteilt werden
             ### Dieses mean sollte dem Wert in p.grad entsprechen - von pytorch und dem eigenen Optimizer berechnet
             
-            ### Problem: läuft (meistens) durch aber spätestens 
-            ###beim Versuch der Erstellung der Liste habe ich keinen Zugriff auf den Parameter grad_batch
+            ### Problem: Kein Zugriff auf den Parameter grad_batch
             
             
             #list = list.append(grad_batch[i] bis grad_batch)
-            #list = list.append(param.grad_batch)
-            #mean_gradient_per_bacth =  sum(list)/len(list)
+            list.append(param.grad_batch)
+            #list.size()
+            #mean_gradient_per_batch =  sum(list)/len(list)
 
         if batch % 100 == 0:
             loss, current = loss.item(), batch * len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+            #print(f"loss: {loss:>7f} [{current:>5d}/{size:>5d}]")
+            #print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
+    #print("Hopefully List of singular Tensors generated with BatchGrad:  ", list)
+    #print("mean_gradient_per_batch : should be a scalar?: ", mean_gradient_per_batch)
 
 def test_loop(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
-    test_loss, correct = 0, 0[[]]
+    test_loss, correct = 0, 
 
     with torch.no_grad():
         for X, y in dataloader:
@@ -119,14 +133,16 @@ def test_loop(dataloader, model, loss_fn):
     test_loss /= num_batches
     correct /= size
 
+
+
 # "Main Loop "
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
-
+    
 epochs = 2
 for t in range(epochs):
-    print(f"Epoch {t+1}\n-------------------------------")
+    #print(f"Epoch {t+1}\n-------------------------------")
     train_loop(train_dataloader, model, loss_fn, optimizer)
     #test_loop(test_dataloader, model, loss_fn)
-print("Done!")
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print("Done!")
+    #print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
