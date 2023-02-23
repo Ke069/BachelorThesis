@@ -1,4 +1,4 @@
-# Gegen ASCII Fehler
+ # Gegen ASCII Fehler
 # coding = utf-8
 
 import torch
@@ -11,8 +11,17 @@ from torchvision.transforms import ToTensor
 from backpack import backpack, extend
 from backpack.extensions import BatchGrad
 
-# imports aus der toolbox
+#imports aus der toolbox
+import optimizer_toolbox
 from optimizer_toolbox import *
+#import optimizer_toolbox
+
+#hier sind sowohl backpack_BatchGrad1, die optimizer toolbox und die leere init drin
+
+#getting file directory
+
+
+import numpy as np
 
 
 training_data = datasets.FashionMNIST(
@@ -47,8 +56,6 @@ class NeuralNetwork(nn.Module):
 
 model = NeuralNetwork()
 
-model_copy = copy.deepcopy(model)
-
 learning_rate = 1e-3
 batch_size = 64
 epochs = 5
@@ -57,6 +64,7 @@ epochs = 5
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     for batch, (X, y) in enumerate(dataloader):
+        
         pred = model(X)
 
         with backpack(BatchGrad()):
@@ -66,43 +74,33 @@ def train_loop(dataloader, model, loss_fn, optimizer):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            
 
-        for (
-            name,
-            param,
-        ) in model.named_parameters():
-            print((param.grad_batch.sum(dim=0) - param.grad).sum())
+       
+            for (name,param,) in model.named_parameters():
+            #print(p.data)
+                print(param.grad_batch)
+                #...
 
 
-def test_loop(dataloader, model, loss_fn):
-    size = len(dataloader.dataset)
-    num_batches = len(dataloader)
-    test_loss, correct = (0,)
 
-    with torch.no_grad():
-        for X, y in dataloader:
-            pred = model(X)
-            test_loss += loss_fn(pred, y).item()
-            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
-
-    test_loss /= num_batches
-    correct /= size
 
 
 # "Main Loop "
 loss_fn = nn.CrossEntropyLoss()
 extend(loss_fn)
 extend(model)
+#Von Pytorch vorimplementierterSGD 
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
-optimizer1 = torch.optim.signSGD_David_grad(model.parameters(), lr=learning_rate)
+#optimizer = optimizer_toolbox.signSGD_David_grad(model.parameters(), learning_rate =learning_rate)
+optimizer1 = optimizer_toolbox.signSGD_David_grad_batch(model.parameters(), learning_rate = learning_rate)
+#optimizer = optimizer_toolbox.majorityVoteSignSGD(model.parameters(), lr = learning_rate)
 
 epochs = 2
 for t in range(epochs):
     # print(f"Epoch {t+1}\n-------------------------------")
-    #Training1
     train_loop(train_dataloader, model, loss_fn, optimizer)
-    #Training
-    train_loop(train_dataloader, model_copy, loss_fn, optimizer1)
+    #train_loop(train_dataloader, model, loss_fn, optimizer1)
     # test_loop(test_dataloader, model, loss_fn)
     print("Done!")
     # print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
