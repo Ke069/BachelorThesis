@@ -1,0 +1,21 @@
+name: kaffe_n_kuchen
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+dependencies:
+  - numpy
+  - pandas
+  - seaborn
+  - matplotlib
+  - pytorch
+  - tensorflow
+  - torchvision 
+  - backpack-for-pytorch
+  - bayesian-optimization
+  - pip
+  - scipy 
+  - pip:
+    - deepobs
+      
+    
