@@ -1,1 +1,1 @@
-__all__ = ["optimizer_toolbox", "backpack_BatchGrad"]
+__all__ = ["optimizer_toolbox", "backpack_BatchGrad","optimizer_toolbox_withVarianceAdaptation_apply"]
